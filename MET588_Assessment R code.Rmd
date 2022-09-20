@@ -1,0 +1,66 @@
+---
+title: "MET588 Assessment"
+author: "K Millard"
+date: "08/06/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+install.packages("tidyverse")
+library(tidyverse)
+```
+
+## Question 1
+# Need to import and filter both summary stats files for 044 and 053 to undergo locuszoom association analysis.
+
+```{r import}
+Region1 <- read_tsv("044.sumstats.txt")
+Region2 <- read_tsv("053.sumstats.txt")
+```
+
+```{r filtercolumn}
+Region1LZ <- select(Region1, "CHR", "SNP", "BP", "A1", "A2", "P")
+Region2LZ <- select(Region2, "CHR", "SNP", "BP", "A1", "A2", "P")
+
+transform(Region1LZ, BP =as.numeric(BP))
+```
+
+# For these files to be compatible with locuszoom they need to be sorted by their base pair
+
+```{r sort}
+Region1LZS <- Region1LZ[order(Region1LZ$BP),]
+Region2LZS <- Region2LZ[order(Region2LZ$BP),]
+```
+
+## Need to now export these files to input into LocusZoom.org 
+
+```{r export}
+write_tsv(Region1LZS, "044LZInput.txt")
+write_tsv(Region2LZS, "053LZInput.txt")
+```
+
+
+## Question 3
+# We need to import all credible SNPs gathered from FINEMAP in Q2 to then extract these from the summary stats files.
+
+```{r import}
+snplist44 <- read.table("044.cred2", sep = " ", header = T)
+snplist53 <- read.table("053.cred1", sep = " ", header = T)
+```
+
+```{r import}
+snplist44 <- snplist44[c("cred1","cred2")]
+snplist53 <- snplist53[c("cred1")]
+snplist44 <- data.frame(unlist(snplist44))
+snplist44 <- na.omit(snplist44)
+colnames(snplist44) <- NULL
+rownames(snplist44) <- NULL
+colnames(snplist53) <- NULL
+```
+
+# Now need to extract this list to then be used in Hawk to look through 
+
+```{r export}
+write_tsv(snplist44, "snplist44.txt")
+write_tsv(snplist53, "snplist53.txt")
+```
